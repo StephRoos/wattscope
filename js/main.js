@@ -466,7 +466,7 @@ d3.csv("data/sample.csv").then(data => {
       xAxis = xAxis.ticks(d3.timeDay.every(1)).tickFormat(d3.timeFormat("%d %b"));
     } else if (zoomDays <= 90) {
       // 2 semaines a 3 mois : ticks hebdomadaires, format "Sem 12"
-      xAxis = xAxis.ticks(d3.timeWeek.every(1)).tickFormat(d3.timeFormat("%d %b"));
+      xAxis = xAxis.ticks(d3.timeWeek.every(1)).tickFormat(d3.timeFormat("Sem %W"));
     } else {
       // Plus de 3 mois : ticks mensuels, format "Jan"
       xAxis = xAxis.ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat("%b"));
@@ -600,7 +600,7 @@ d3.csv("data/sample.csv").then(data => {
     if (hmZoomDays <= 14) {
       hmXAxis = hmXAxis.ticks(d3.timeDay.every(1)).tickFormat(d3.timeFormat("%d %b"));
     } else if (hmZoomDays <= 90) {
-      hmXAxis = hmXAxis.ticks(d3.timeWeek.every(1)).tickFormat(d3.timeFormat("%d %b"));
+      hmXAxis = hmXAxis.ticks(d3.timeWeek.every(1)).tickFormat(d3.timeFormat("Sem %W"));
     } else {
       hmXAxis = hmXAxis.ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat("%b"));
     }
