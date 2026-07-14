@@ -723,26 +723,20 @@ KPIs :
 Réponds en français, en 3 points MAXIMUM, 1 phrase par point. Format : **Titre** : constat. Sois direct, concret, pas de tutoiement, pas d'emojis.`;
   }
 
-  // 13b. Bouton toggle pour l'analyse IA de la courbe
-  // L'analyse se lance au clic avec les KPIs de la periode ZOOME actuelle
-  let aiLaunched = false;
+  // 13b. Bouton IA de la courbe — relance l'analyse a chaque clic
   const toggleBtn = document.getElementById("toggle-ai-btn");
   const toggleIcon = document.getElementById("toggle-ai-icon");
   aiPanel = document.getElementById("ai-panel");
 
   toggleBtn.addEventListener("click", () => {
-    aiPanel.classList.toggle("hidden");
+    // Ouvrir le panneau s'il est ferme, sinon le laisser ouvert
     if (aiPanel.classList.contains("hidden")) {
-      toggleIcon.textContent = "+ IA Courbe";
-    } else {
+      aiPanel.classList.remove("hidden");
       toggleIcon.textContent = "- IA Courbe";
-      // Construire le prompt avec les KPIs de la periode zoomee actuelle
-      const prompt = buildAiPrompt();
-      if (prompt) {
-        // Relancer l'analyse a chaque ouverture (les KPIs peuvent avoir change si zoom)
-        callOllama(prompt, "ai-analysis");
-      }
     }
+    // Relancer l'analyse a chaque clic avec les KPIs de la periode zoomee actuelle
+    const prompt = buildAiPrompt();
+    if (prompt) callOllama(prompt, "ai-analysis");
   });
 
   // =================================================================
@@ -785,21 +779,19 @@ Patterns détectés :
 Réponds en français, en 3 points MAXIMUM, 1 phrase par point. Format : **Titre** : constat. Sois direct, concret, pas de tutoiement, pas d'emojis.`;
   }
 
-  // Bouton toggle pour l'analyse IA de la heatmap
-  let hmAiLaunched = false;
+  // Bouton IA de la heatmap — relance l'analyse a chaque clic
   const hmToggleBtn = document.getElementById("toggle-hm-ai-btn");
   const hmToggleIcon = document.getElementById("toggle-hm-ai-icon");
   const hmAiPanel = document.getElementById("hm-ai-panel");
 
   hmToggleBtn.addEventListener("click", () => {
-    hmAiPanel.classList.toggle("hidden");
+    // Ouvrir le panneau s'il est ferme, sinon le laisser ouvert
     if (hmAiPanel.classList.contains("hidden")) {
-      hmToggleIcon.textContent = "+ IA Heatmap";
-    } else {
+      hmAiPanel.classList.remove("hidden");
       hmToggleIcon.textContent = "- IA Heatmap";
-      // Relancer l'analyse a chaque ouverture avec les KPIs de la periode zoomee
-      callOllama(buildHeatmapAiPrompt(), "hm-ai-analysis");
     }
+    // Relancer l'analyse a chaque clic avec les KPIs de la periode zoomee actuelle
+    callOllama(buildHeatmapAiPrompt(), "hm-ai-analysis");
   });
 });
 
