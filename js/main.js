@@ -725,15 +725,11 @@ Réponds en français, en 3 points MAXIMUM, 1 phrase par point. Format : **Titre
 
   // 13b. Bouton IA de la courbe — relance l'analyse a chaque clic
   const toggleBtn = document.getElementById("toggle-ai-btn");
-  const toggleIcon = document.getElementById("toggle-ai-icon");
   aiPanel = document.getElementById("ai-panel");
 
   toggleBtn.addEventListener("click", () => {
-    // Ouvrir le panneau s'il est ferme, sinon le laisser ouvert
-    if (aiPanel.classList.contains("hidden")) {
-      aiPanel.classList.remove("hidden");
-      toggleIcon.textContent = "- IA Courbe";
-    }
+    // Ouvrir le panneau s'il est ferme
+    aiPanel.classList.remove("hidden");
     // Relancer l'analyse a chaque clic avec les KPIs de la periode zoomee actuelle
     const prompt = buildAiPrompt();
     if (prompt) callOllama(prompt, "ai-analysis");
@@ -781,15 +777,11 @@ Réponds en français, en 3 points MAXIMUM, 1 phrase par point. Format : **Titre
 
   // Bouton IA de la heatmap — relance l'analyse a chaque clic
   const hmToggleBtn = document.getElementById("toggle-hm-ai-btn");
-  const hmToggleIcon = document.getElementById("toggle-hm-ai-icon");
   const hmAiPanel = document.getElementById("hm-ai-panel");
 
   hmToggleBtn.addEventListener("click", () => {
-    // Ouvrir le panneau s'il est ferme, sinon le laisser ouvert
-    if (hmAiPanel.classList.contains("hidden")) {
-      hmAiPanel.classList.remove("hidden");
-      hmToggleIcon.textContent = "- IA Heatmap";
-    }
+    // Ouvrir le panneau s'il est ferme
+    hmAiPanel.classList.remove("hidden");
     // Relancer l'analyse a chaque clic avec les KPIs de la periode zoomee actuelle
     callOllama(buildHeatmapAiPrompt(), "hm-ai-analysis");
   });
