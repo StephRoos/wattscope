@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wattscope</title>
+
+    <!-- D3.js v7 via CDN — librairie de dataviz (scales, shapes, axes) -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- Tailwind CSS via CDN — utility classes pour le style (rapide, pas de CSS a ecrire) -->
+    <!-- Warning : CDN = dev only. En prod, installer Tailwind en PostCSS plugin -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+
+    <!-- En-tete : titre + boutons toggle analyse IA -->
+    <div class="flex items-center gap-3 mb-6">
+        <h1 class="text-3xl font-bold text-slate-800">Wattscope</h1>
+        <button id="toggle-ai-btn"
+            class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition">
+            <span id="toggle-ai-icon">+ IA Courbe</span>
+        </button>
+        <button id="toggle-hm-ai-btn"
+            class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition">
+            <span id="toggle-hm-ai-icon">+ IA Heatmap</span>
+        </button>
+    </div>
+
+    <!-- Layout flex : chart a gauche, panneau IA courbe a droite -->
+    <div class="flex gap-6 mb-6">
+        <div class="flex-1 bg-white rounded-lg shadow p-4">
+            <div id="chart"></div>
+        </div>
+
+        <!-- Panneau IA courbe (masque par defaut) -->
+        <div id="ai-panel" class="w-80 bg-white rounded-lg shadow p-4 hidden">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h2 class="text-sm font-semibold text-slate-700">Analyse IA — Courbe</h2>
+            </div>
+            <div id="ai-analysis" class="text-xs text-slate-600 leading-relaxed">
+                <p class="text-slate-400 italic">En attente...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layout flex : heatmap a gauche, panneau IA heatmap a droite -->
+    <div class="flex gap-6">
+        <div class="flex-1 bg-white rounded-lg shadow p-4">
+            <div id="heatmap"></div>
+        </div>
+
+        <!-- Panneau IA heatmap (masque par defaut) -->
+        <div id="hm-ai-panel" class="w-80 bg-white rounded-lg shadow p-4 hidden">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h2 class="text-sm font-semibold text-slate-700">Analyse IA — Heatmap</h2>
+            </div>
+            <div id="hm-ai-analysis" class="text-xs text-slate-600 leading-relaxed">
+                <p class="text-slate-400 italic">En attente...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div id="tooltip" class="absolute pointer-events-none opacity-0 transition-opacity duration-150 bg-slate-800 text-white text-xs rounded-lg px-3 py-2 shadow-lg z-50">
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
