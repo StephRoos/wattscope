@@ -86,6 +86,9 @@ d3.csv("data/sample.csv").then(data => {
   };
   let aiPanel = null;  // assigne plus bas, dans la section du bouton IA
 
+  // KPIs heatmap mis a jour par brushed() selon la periode zoomee
+  let hmAiKPIs = null;
+
   // Donnees partagees pour la heatmap (doivent exister avant le brush au demarrage)
   const allDays = [...new Set(data.map(d => d3.timeDay(d.timestamp).getTime()))]
     .map(t => new Date(t))
@@ -497,6 +500,20 @@ d3.csv("data/sample.csv").then(data => {
 
     // 7. Synchroniser la heatmap avec la periode zoomee
     renderHeatmap(dateStart, dateEnd);
+
+    // 8. Mettre a jour les KPIs de l'IA heatmap (sans la declencher automatiquement)
+    const hmFilteredData = data.filter(d => d.timestamp >= dateStart && d.timestamp <= dateEnd);
+    const hmWeekdayDaytime = hmFilteredData.filter(d => d.timestamp.getDay() >= 1 && d.timestamp.getDay() <= 5 && d.timestamp.getHours() >= 8 && d.timestamp.getHours() < 18);
+    const hmWeekendData = hmFilteredData.filter(d => d.timestamp.getDay() >= 6);
+    const hmPeakHours = d3.rollups(hmFilteredData, v => d3.mean(v, d => d.power_kW), d => d.timestamp.getHours())
+      .sort((a, b) => b[1] - a[1]).slice(0, 3);
+    hmAiKPIs = {
+      weekdayDayAvg: hmWeekdayDaytime.length > 0 ? d3.mean(hmWeekdayDaytime, d => d.power_kW) : 0,
+      weekendAvg: hmWeekendData.length > 0 ? d3.mean(hmWeekendData, d => d.power_kW) : 0,
+      nightAvg: d3.mean(hmFilteredData.filter(d => d.timestamp.getHours() >= 0 && d.timestamp.getHours() < 6), d => d.power_kW),
+      peakHour: hmPeakHours[0] || [0, 0],
+      leastLoadedHour: d3.rollups(hmFilteredData, v => d3.mean(v, d => d.power_kW), d => d.timestamp.getHours()).sort((a, b) => a[1] - b[1])[0] || [0, 0]
+    };
   }
 
   // ========================================================================
@@ -728,29 +745,45 @@ Réponds en français, en 3 points MAXIMUM, 1 phrase par point. Format : **Titre
     }
   });
 
-  // ========================================================================
-  // 13c. Analyse IA pour la HEATMAP (prompt court)
-  // ========================================================================
+  // =================================================================
+  // 13c. Analyse IA pour la HEATMAP (prompt court, periode zoomee au clic)
+  // =================================================================
 
-  // KPIs spécifiques à la heatmap (patterns horaires)
-  const weekdayDaytime = data.filter(d => d.timestamp.getDay() >= 1 && d.timestamp.getDay() <= 5 && d.timestamp.getHours() >= 8 && d.timestamp.getHours() < 18);
-  const weekendData = data.filter(d => d.timestamp.getDay() >= 6);
-  const weekdayDayAvg = d3.mean(weekdayDaytime, d => d.power_kW);
-  const weekendAvg = d3.mean(weekendData, d => d.power_kW);
-  const nightAvg = d3.mean(data.filter(d => d.timestamp.getHours() >= 0 && d.timestamp.getHours() < 6), d => d.power_kW);
-  const peakHours = d3.rollups(data, v => d3.mean(v, d => d.power_kW), d => d.timestamp.getHours())
-    .sort((a, b) => b[1] - a[1]).slice(0, 3);
+  // Calculer les KPIs heatmap sur un jeu de donnees filtre
+  function computeHeatmapKPIs(hmData) {
+    const weekdayDaytime = hmData.filter(d => d.timestamp.getDay() >= 1 && d.timestamp.getDay() <= 5 && d.timestamp.getHours() >= 8 && d.timestamp.getHours() < 18);
+    const weekendData = hmData.filter(d => d.timestamp.getDay() >= 6);
+    const peakHours = d3.rollups(hmData, v => d3.mean(v, d => d.power_kW), d => d.timestamp.getHours())
+      .sort((a, b) => b[1] - a[1]).slice(0, 3);
+    const leastLoadedHour = d3.rollups(hmData, v => d3.mean(v, d => d.power_kW), d => d.timestamp.getHours())
+      .sort((a, b) => a[1] - b[1])[0];
 
-  const hmAiPrompt = `Tu es un expert en analyse énergétique industrielle. Voici les patterns horaires d'une PME industrielle wallonne (heatmap jour×heure, données ELMAS réelles).
+    return {
+      weekdayDayAvg: weekdayDaytime.length > 0 ? d3.mean(weekdayDaytime, d => d.power_kW) : 0,
+      weekendAvg: weekendData.length > 0 ? d3.mean(weekendData, d => d.power_kW) : 0,
+      nightAvg: d3.mean(hmData.filter(d => d.timestamp.getHours() >= 0 && d.timestamp.getHours() < 6), d => d.power_kW),
+      peakHour: peakHours[0] || [0, 0],
+      leastLoadedHour: leastLoadedHour || [0, 0]
+    };
+  }
+
+  // Initialiser les KPIs heatmap sur l'annee complete
+  hmAiKPIs = computeHeatmapKPIs(data);
+
+  // Construire le prompt de l'IA heatmap a partir des KPIs zoomes
+  function buildHeatmapAiPrompt() {
+    const k = hmAiKPIs;
+    return `Tu es un expert en analyse énergétique industrielle. Voici les patterns horaires d'une PME industrielle wallonne (heatmap jour×heure, données ELMAS réelles).
 
 Patterns détectés :
-- Heure la plus chargée : ${peakHours[0][0]}h (${peakHours[0][1].toFixed(0)} kW)
-- Heure la moins chargée : ${d3.rollups(data, v => d3.mean(v, d => d.power_kW), d => d.timestamp.getHours()).sort((a, b) => a[1] - b[1])[0][0]}h
-- Semaine jour : ${weekdayDayAvg.toFixed(0)} kW | Week-end : ${weekendAvg.toFixed(0)} kW
-- Nuit (00-06h) : ${nightAvg.toFixed(0)} kW
-- Écart semaine/WE : ${((weekdayDayAvg - weekendAvg) / weekdayDayAvg * 100).toFixed(0)}%
+- Heure la plus chargée : ${k.peakHour[0]}h (${k.peakHour[1].toFixed(0)} kW)
+- Heure la moins chargée : ${k.leastLoadedHour[0]}h
+- Semaine jour : ${k.weekdayDayAvg.toFixed(0)} kW | Week-end : ${k.weekendAvg.toFixed(0)} kW
+- Nuit (00-06h) : ${k.nightAvg.toFixed(0)} kW
+- Écart semaine/WE : ${k.weekdayDayAvg > 0 ? ((k.weekdayDayAvg - k.weekendAvg) / k.weekdayDayAvg * 100).toFixed(0) : 0}%
 
 Réponds en français, en 3 points MAXIMUM, 1 phrase par point. Format : **Titre** : constat. Sois direct, concret, pas de tutoiement, pas d'emojis.`;
+  }
 
   // Bouton toggle pour l'analyse IA de la heatmap
   let hmAiLaunched = false;
@@ -764,10 +797,8 @@ Réponds en français, en 3 points MAXIMUM, 1 phrase par point. Format : **Titre
       hmToggleIcon.textContent = "+ IA Heatmap";
     } else {
       hmToggleIcon.textContent = "- IA Heatmap";
-      if (!hmAiLaunched) {
-        hmAiLaunched = true;
-        callOllama(hmAiPrompt, "hm-ai-analysis");
-      }
+      // Relancer l'analyse a chaque ouverture avec les KPIs de la periode zoomee
+      callOllama(buildHeatmapAiPrompt(), "hm-ai-analysis");
     }
   });
 });
