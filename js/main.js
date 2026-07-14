@@ -457,18 +457,18 @@ d3.csv("data/sample.csv").then(data => {
     // Le clip-path empeche la ligne de sortir de la zone du graphique
     svg.select(".line-chart").attr("d", line);
 
-    // 4. Redessiner l'axe X avec un format adapte au niveau de zoom
+    // 4. Redessiner l'axe X avec un format adapte au niveau de zoom :
+    //    - vue hebdomadaire (< 2 semaines) : jours
+    //    - vue mensuelle (2 semaines a 2 mois) : semaines
+    //    - vue annuelle (> 2 mois) : mois
     const zoomDays = (dateEnd - dateStart) / (1000 * 60 * 60 * 24);
     let xAxis = d3.axisBottom(xScale).tickSize(5);
 
     if (zoomDays <= 14) {
-      // Moins de 2 semaines : ticks journaliers, format "12 Jan"
       xAxis = xAxis.ticks(d3.timeDay.every(1)).tickFormat(d3.timeFormat("%d %b"));
-    } else if (zoomDays <= 90) {
-      // 2 semaines a 3 mois : ticks hebdomadaires, format "Sem 12"
+    } else if (zoomDays <= 60) {
       xAxis = xAxis.ticks(d3.timeWeek.every(1)).tickFormat(d3.timeFormat("Sem %W"));
     } else {
-      // Plus de 3 mois : ticks mensuels, format "Jan"
       xAxis = xAxis.ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat("%b"));
     }
 
@@ -589,7 +589,10 @@ d3.csv("data/sample.csv").then(data => {
       .attr("stroke", "none")
       .attr("rx", 0);
 
-    // Axe X : adapte le format au niveau de zoom (jours / semaines / mois)
+    // Axe X : adapte le format au niveau de zoom
+    //    - vue hebdomadaire (< 2 semaines) : jours
+    //    - vue mensuelle (2 semaines a 2 mois) : semaines
+    //    - vue annuelle (> 2 mois) : mois
     const hmXAxisScale = d3.scaleTime()
       .domain([d3.timeDay(startDate), d3.timeDay(endDate)])
       .range([0, hmWidth]);
@@ -599,7 +602,7 @@ d3.csv("data/sample.csv").then(data => {
 
     if (hmZoomDays <= 14) {
       hmXAxis = hmXAxis.ticks(d3.timeDay.every(1)).tickFormat(d3.timeFormat("%d %b"));
-    } else if (hmZoomDays <= 90) {
+    } else if (hmZoomDays <= 60) {
       hmXAxis = hmXAxis.ticks(d3.timeWeek.every(1)).tickFormat(d3.timeFormat("Sem %W"));
     } else {
       hmXAxis = hmXAxis.ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat("%b"));
