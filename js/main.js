@@ -589,16 +589,25 @@ d3.csv("data/sample.csv").then(data => {
       .attr("stroke", "none")
       .attr("rx", 0);
 
-    // Axe X : mois
+    // Axe X : adapte le format au niveau de zoom (jours / semaines / mois)
     const hmXAxisScale = d3.scaleTime()
       .domain([d3.timeDay(startDate), d3.timeDay(endDate)])
       .range([0, hmWidth]);
 
+    const hmZoomDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+    let hmXAxis = d3.axisBottom(hmXAxisScale).tickSize(5);
+
+    if (hmZoomDays <= 14) {
+      hmXAxis = hmXAxis.ticks(d3.timeDay.every(1)).tickFormat(d3.timeFormat("%d %b"));
+    } else if (hmZoomDays <= 90) {
+      hmXAxis = hmXAxis.ticks(d3.timeWeek.every(1)).tickFormat(d3.timeFormat("%d %b"));
+    } else {
+      hmXAxis = hmXAxis.ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat("%b"));
+    }
+
     hmSvg.append("g")
       .attr("transform", `translate(0,${hmHeight})`)
-      .call(d3.axisBottom(hmXAxisScale)
-        .tickFormat(d3.timeFormat("%b"))
-        .tickSize(5))
+      .call(hmXAxis)
       .call(g => g.select(".domain").remove())
       .attr("color", COLORS.muted);
 
