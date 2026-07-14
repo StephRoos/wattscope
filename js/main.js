@@ -38,18 +38,16 @@ const totalHeight = height + overviewGap + overviewHeight;  // hauteur totale ut
 const parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
 // 3. Palette de couleurs (Wattscope — sobre, un accent)
-// SWD : la couleur attire l'oeil. Un accent = un message.
-// primary (teal) = la courbe principale (le donnee)
-// base (gris) = le base load (reference, secondaire)
-// accent (orange) = le pic (l'anomalie a signaler)
-// grid/text/muted = nuances de gris pour le contexte
+// Les couleurs sont des variables CSS definies dans index.html.
+// Avantage : quand on bascule en mode sombre, les variables changent
+// et les elements SVG se mettent a jour automatiquement (pas besoin de redessiner).
 const COLORS = {
-  primary: "#0f4c5c",    // teal fonce — courbe principale
-  base: "#94a3b8",       // gris — base load (secondaire, discret)
-  accent: "#e76f51",     // orange — annotation pic (attire l'oeil)
-  grid: "#e5e7eb",       // gris tres clair — gridlines (a peine visibles)
-  text: "#1e293b",       // gris fonce — texte principal
-  muted: "#64748b",      // gris moyen — labels secondaires
+  primary: "var(--ws-primary)",    // teal clair en dark — courbe principale
+  base: "var(--ws-base)",          // gris — base load
+  accent: "var(--ws-accent)",      // orange — annotation pic
+  grid: "var(--ws-grid)",          // gris tres clair / slate-700 en dark — gridlines
+  text: "var(--ws-text)",          // gris fonce / slate-100 en dark — texte principal
+  muted: "var(--ws-muted)",        // gris moyen / slate-400 en dark — labels secondaires
 };
 
 // 4. Charger les donnees
