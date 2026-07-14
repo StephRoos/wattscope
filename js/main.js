@@ -443,7 +443,7 @@ d3.csv("data/sample.csv").then(data => {
     const dateStart = xScale2.invert(pxStart);
     const dateEnd = xScale2.invert(pxEnd);
 
-    // Stocker la periode zoomee pour l'analyse IA et les donnees filtrees
+    // Stocker la periode zoomee pour l'analyse IA (au clic) et les donnees filtrees
     zoomRange = { start: dateStart, end: dateEnd };
     zoomedDailyData = dailyData.filter(d => d.date >= dateStart && d.date <= dateEnd);
 
@@ -497,12 +497,6 @@ d3.csv("data/sample.csv").then(data => {
 
     // 7. Synchroniser la heatmap avec la periode zoomee
     renderHeatmap(dateStart, dateEnd);
-
-    // 8. Si le panneau IA est ouvert, relancer l'analyse sur la nouvelle periode
-    if (aiPanel && !aiPanel.classList.contains("hidden")) {
-      const prompt = buildAiPrompt();
-      if (prompt) callOllama(prompt, "ai-analysis");
-    }
   }
 
   // ========================================================================
@@ -649,9 +643,10 @@ d3.csv("data/sample.csv").then(data => {
   renderHeatmap(d3.min(allDays), d3.max(allDays));
   // 12. KPIs pour l'analyse IA — calcules au clic, sur la periode ZOOME
   // ========================================================================
-  // L'analyse IA utilise les donnees de la periode actuellement selectionnee
-  // par le brush. Si l'utilisateur a zoome sur mars, l'IA analyse mars.
-  // Si pas de zoom (annee complete), l'IA analyse toute l'annee.
+  // L'analyse IA de la courbe est declenchee manuellement au clic.
+  // Quand l'utilisateur appuie sur le bouton IA, l'analyse porte sur la
+  // periode actuellement selectionnee par le brush. Le zoom lui-meme ne
+  // relance pas l'analyse automatiquement.
 
   // Fonction : calculer les KPIs sur une periode filtree
   function computeZoomedKPIs(startDate, endDate) {
@@ -693,7 +688,8 @@ d3.csv("data/sample.csv").then(data => {
     };
   }
 
-  // 13. Fonction : construire le prompt avec les KPIs de la periode zoome
+  // 13. Fonction : construire le prompt avec les KPIs de la periode actuellement zoomee
+  // L'analyse n'est declenchee que manuellement, au clic sur le bouton IA.
   function buildAiPrompt() {
     const k = computeZoomedKPIs(zoomRange.start, zoomRange.end);
     if (!k) return null;
