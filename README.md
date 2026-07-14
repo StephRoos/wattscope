@@ -2,6 +2,14 @@
 
 > Diagnostic productisé de courbe de charge électrique pour PME industrielles wallonnes.
 
+## Fonctionnalités
+
+- **Courbe de charge** interactive en D3.js (moyenne quotidienne sur 365 jours)
+- **Brush / zoom** sur la courbe : le pic, le base load, l'axe X et la heatmap se synchronisent
+- **Heatmap jour × heure** des 8760 points horaires, filtrée par la période zoomée
+- **Analyse IA locale** via Ollama (qwen2.5:7b) : boutons "Analyser Courbe" et "Analyser Heatmap", portant sur la période actuellement zoomée
+- **Mode sombre** avec persistance du choix
+
 ## Démarrage
 
 ```bash
