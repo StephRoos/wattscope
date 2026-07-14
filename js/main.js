@@ -119,7 +119,8 @@ d3.csv("data/sample.csv").then(data => {
   //   - SWD : 70-80% de l'espace vertical doit contenir les donnees
   //
   // On arrondit au multiple de 50 le plus proche pour des axes propres
-  const yMin = Math.floor(d3.min(dailyData, d => d.avgkW) * 0.9 / 50) * 50;
+  // L'axe Y commence a 0 pour donner une reference absolue de la puissance
+  const yMin = 0;
   const yMax = Math.ceil(d3.max(dailyData, d => d.avgkW) * 1.1 / 50) * 50;
 
   // scaleTime : mappe une plage de DATES vers des PIXELS (axe X)
@@ -467,7 +468,7 @@ d3.csv("data/sample.csv").then(data => {
     if (zoomDays <= 14) {
       xAxis = xAxis.ticks(d3.timeDay.every(1)).tickFormat(d3.timeFormat("%d %b"));
     } else if (zoomDays <= 60) {
-      xAxis = xAxis.ticks(d3.timeWeek.every(1)).tickFormat(d3.timeFormat("Sem %W"));
+      xAxis = xAxis.ticks(d3.timeWeek.every(1)).tickFormat(d3.timeFormat("%b S%W"));
     } else {
       xAxis = xAxis.ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat("%b"));
     }
@@ -603,7 +604,7 @@ d3.csv("data/sample.csv").then(data => {
     if (hmZoomDays <= 14) {
       hmXAxis = hmXAxis.ticks(d3.timeDay.every(1)).tickFormat(d3.timeFormat("%d %b"));
     } else if (hmZoomDays <= 60) {
-      hmXAxis = hmXAxis.ticks(d3.timeWeek.every(1)).tickFormat(d3.timeFormat("Sem %W"));
+      hmXAxis = hmXAxis.ticks(d3.timeWeek.every(1)).tickFormat(d3.timeFormat("%b S%W"));
     } else {
       hmXAxis = hmXAxis.ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat("%b"));
     }
